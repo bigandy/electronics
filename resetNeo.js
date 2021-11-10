@@ -6,5 +6,6 @@ const resetPixels = () => {
   const channel = ws281x(NUM_LEDS, { stripType: "ws2812" });
 
   ws281x.reset();
+  ws281x.finalize();
 };
 resetPixels();

@@ -1,33 +1,43 @@
 import ws281x from "@gbkwiatt/node-rpi-ws281x-native";
-import Colour from "color";
+import Color from "color";
 
 import rgb2Int from "./utils/rgb2int.js";
-// import colorwheel from "./utils/colorwheel";
+import colorwheel from "./utils/colorwheel.js";
 
 const NUM_LEDS = 144;
-const SPEED = 10;
 
 // ---- trap the SIGINT and reset before exit
 process.on("SIGINT", function () {
   ws281x.reset();
+
+  ws281x.finalize();
   process.nextTick(function () {
     process.exit(0);
   });
 });
 
-const setPixels = (r = 255, g = 0, b = 0) => {
-  const channel = ws281x(NUM_LEDS, { stripType: "ws2812" });
+const channel = ws281x(NUM_LEDS, { stripType: "ws2812" });
+
+const setPixels = (color1, color2 = null) => {
+  const { r, g, b } = color1;
+  const mainColor = rgb2Int(r, g, b);
+
+  let fallbackColor = 0x000000;
+  if (color2) {
+    const { r: r2, g: g2, b: b2 } = color2;
+    fallbackColor = rgb2Int(r2, g2, b2);
+  }
+
   const pixelData = channel.array;
-  // ---- animation-loop
-  // var offset = 0;
+  var offset = 0;
   for (var i = 0; i < NUM_LEDS; i++) {
     // pixelData[i] = colorwheel((offset + i) % 256);
-    pixelData[i] = i % 3 ? rgb2Int(r, g, b) : 0x000000;
+    pixelData[i] = i % 2 === 0 ? mainColor : fallbackColor;
   }
   ws281x.render(pixelData);
-  //   offset = (offset + 1) % 256;
+  offset = (offset + 1) % 256;
 };
 
-setPixels(255, 0, 200);
-
 console.log("Press <ctrl>+C to exit.");
+
+export default setPixels;

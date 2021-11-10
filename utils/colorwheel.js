@@ -1,4 +1,7 @@
+import rgb2Int from "./rgb2int.js";
+
 // rainbow-colors, taken from http://goo.gl/Cs3H0v
+
 export default function colorwheel(pos) {
   pos = 255 - pos;
   if (pos < 85) {
